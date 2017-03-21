@@ -1,5 +1,6 @@
 import $ from 'jquery';
 const conf = require('../../conf.js');
+const faker = require('faker');
 
 export class TopSearchTerms {
 
@@ -60,7 +61,11 @@ export class TopSearchTerms {
 
 		$.post( `${conf.baseUrl}/recommendations/searches/_getPopular`, 
 				this.getQuery() ).then( (resp) => {
-	        table.appendRows(resp.result);
+
+          //swap out real terms with fake ones
+          const result = resp.result.map( r => { r.query = faker.fake("{{commerce.productName}}"); return r;});
+
+	        table.appendRows(result);
 	        cb();
 	    });
 	  }

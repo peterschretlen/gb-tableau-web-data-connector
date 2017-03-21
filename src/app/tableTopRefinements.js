@@ -1,5 +1,6 @@
 import $ from 'jquery';
 const conf = require('../../conf.js');
+const faker = require('faker');
 
 export class TopRefinements {
 
@@ -58,16 +59,32 @@ export class TopRefinements {
           const rows = [];
 
           resp.result.forEach( r => {
-
-            if(r.values) r.values.forEach( v => rows.push({ name: r.name, value: v.value, count: v.count }) );
-            if(r.highs) r.highs.forEach( v => rows.push({ name: r.name, value: `high | ${v.high}`, count: v.count }) );
-            if(r.lows) r.lows.forEach( v => rows.push({ name: r.name, value: `low | ${v.low}`, count: v.count }) );
-
+            this.setValue(r, rows, true);
           });
 
 	        table.appendRows(rows);
 	        cb();
 	    });
 	  }
+
+  setValue(ref, rows, fake ){
+
+    //replace category digits with prefix
+    let name = ['1','2','3'].find( v => v === ref.name ) ? `category_${ref.name}` :  ref.name;
+
+    //replace subvariant prefix
+    name = name.replace("variants.subvariant.","");
+
+    if(fake){
+      if(ref.values) ref.values.forEach( v => rows.push({ name: name, value: faker.fake("{{random.word}}"), count: v.count }) );
+      if(ref.highs) ref.highs.forEach( v => rows.push({ name: name, value: `high | ${faker.fake('{{commerce.price}}')}`, count: v.count }) );
+      if(ref.lows) ref.lows.forEach( v => rows.push({ name: name, value: `low | ${faker.fake('{{commerce.price}}')}`, count: v.count }) );
+    } else {
+      if(ref.values) ref.values.forEach( v => rows.push({ name: name, value: v.value, count: v.count }) );
+      if(ref.highs) ref.highs.forEach( v => rows.push({ name: name, value: `high | ${v.high}`, count: v.count }) );
+      if(ref.lows) ref.lows.forEach( v => rows.push({ name: name, value: `low | ${v.low}`, count: v.count }) );
+    }
+
+  }
 
 }
